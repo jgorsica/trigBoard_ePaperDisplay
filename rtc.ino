@@ -3,6 +3,57 @@ const int   daylightOffset_sec = 3600;
 void writeRTC(byte regAddr, byte dataToWrite);
 byte readRTC(byte regAddr);
 
+//my added functions
+void setAlarm(int hours, int minutes){
+  byte reg01;
+  reg01 = readRTC(0x01);
+  reg01 |= 0x80;
+  reg01 &= ~(0x40);
+  writeRTC(0x01, reg01); //enable alarm
+  writeRTC(0x0B, 0x00);//seconds alarm - fixing at 00
+  byte ones = minutes % 10;
+  byte tens = (minutes / 10) % 10;
+  writeRTC(0x0C, ones + (tens << 4)); //minutes alarm
+  ones = hours % 10;
+  tens = (hours / 10) % 10;
+  writeRTC(0x0D, ones + (tens << 4));//hours alarm
+}
+void disableAlarm(){
+  byte reg01;
+  reg01 &= ~(0x80);
+  writeRTC(0x01, reg01); //disable alarm
+}
+int getRtcHours(){
+  byte rtcHoursRegister = readRTC(0x06) & 0x3F;
+  byte rtcHours = (rtcHoursRegister & 0x0F) + ((rtcHoursRegister >> 4) & 1) * 10 + ((rtcHoursRegister >> 5) & 1) * 20;
+  return rtcHours;
+}
+int getRtcMinutes(){
+  byte rtcMinutesRegister = readRTC(0x05) & 0x7F;
+  byte rtcMinutes = (rtcMinutesRegister & 0x0F) + ((rtcMinutesRegister >> 4) & 1) * 10 + ((rtcMinutesRegister >> 5) & 1) * 20 + ((rtcMinutesRegister >> 6) & 1) * 40;
+  return rtcMinutes;
+}
+void setNextAlarm(){
+  int wakeUpTimes[] = {0,5,12}; //list of hours (24 hour clock) that will have alarm wakes, at 3 minutes past the hour
+  int wakeUpTimesCount = 3;
+  int hours = getRtcHours();
+  int minutes = getRtcMinutes();
+  int nextAlarmHours = wakeUpTimes[0];
+  for (int i = wakeUpTimesCount-1; i >= 0; i--){
+    if (hours < wakeUpTimes[i]){
+      nextAlarmHours = wakeUpTimes[i];
+    }
+  }
+  int nextAlarmMinutes = 3; //avoids server congestion at exactly the hour
+  //if (nextAlarmMinutes > 59) {
+  //  nextAlarmHours = hours + 1;
+  //  nextAlarmMinutes = nextAlarmMinutes - 60;
+  //}
+  Serial.println("Next alarm set: " + String(nextAlarmHours) + ":" + String(nextAlarmMinutes));
+  setAlarm(nextAlarmHours, nextAlarmMinutes);
+}
+
+
 void timestampAppend() {
   if (strcmp(config.clkAppendEnable, "t") == 0 && strcmp(config.clkEnable, "t") == 0 && !clockWake) {// append all push messages
     rtcGetTime();
@@ -31,7 +82,7 @@ void nptUpdateTime() {
 bool getNTPtime() {
   configTime(config.clkTimeZone * 3600, daylightOffset_sec,  "time.nist.gov", "0.pool.ntp.org", "1.pool.ntp.org");
 
-  struct tm timeinfo;
+  //struct tm timeinfo;
   if (!getLocalTime(&timeinfo)) {
     Serial.println(F("Failed to obtain time"));
     return false;
@@ -203,6 +254,7 @@ bool rtcInit(byte timeValue, bool setNewTime) {
 
 
   // clock alarm settings
+  /*
   if (strcmp(config.clkAlarmEnable, "t") == 0 && strcmp(config.clkEnable, "t") == 0) {
     reg01 = readRTC(0x01);
     reg01 |= 0x80;
@@ -220,8 +272,12 @@ bool rtcInit(byte timeValue, bool setNewTime) {
     reg01 &= ~(0x80);
     writeRTC(0x01, reg01); //disable alarm
   }
-
-
+  */
+  //normal timer wake events are disabling alarms, since alarms aren't setup in config, force alarm to be enabled again
+  reg01 = readRTC(0x01);
+  reg01 |= 0x80;
+  reg01 &= ~(0x40);
+  writeRTC(0x01, reg01); //enable alarm
 
 
   if (timerWake) {
