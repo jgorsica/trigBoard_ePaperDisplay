@@ -70,6 +70,24 @@ bool pushLogic() {
     Serial.println(F("BUTTON"));
     sprintf(pushMessage, "%s, %sV", config.buttonMessage, batCharString);
     rtcInit(config.timerCountDown, true);//reset timer
+    unsigned long startTime = millis();
+    while (millis() - startTime < 2000) {
+      if (digitalRead(wakeButtonPin)) {
+        Serial.println("Button Released");
+        if (contactStatusClosed){
+          if (connectWiFi()) {
+            ePaperUpdate(0);
+            setNextAlarm();
+          }
+        } else{
+          if (connectWiFi()) {
+            ePaperUpdate(2);
+            disableAlarm();
+          }
+        }
+        break;
+      }
+    }
     return true;
   }
   //**************************************
@@ -92,12 +110,20 @@ bool pushLogic() {
       Serial.println(F("CONTACT OPEN"));
       sprintf(pushMessage, "%s, %sV", config.triggerOpensMessage, batCharString);
       rtcInit(config.timerCountDown, true);//reset timer
+      if (connectWiFi()) {
+        ePaperUpdate(1);
+        disableAlarm();
+      }
       return true;
     }
     if (contactLatchClosed) {
       Serial.println(F("CONTACT CLOSE"));
       sprintf(pushMessage, "%s, %sV", config.triggerClosesMessage, batCharString);
       rtcInit(config.timerCountDown, true);//reset timer
+        if (connectWiFi()) {
+        ePaperUpdate(0);
+        setNextAlarm();
+      }
       return true;
     }
 
@@ -145,6 +171,10 @@ bool pushLogic() {
     if (contactStatusClosed) {
       Serial.println(F("CLOCK + CONTACT CLOSED"));
       sprintf(pushMessage, "%s %s, %sV", config.clkAlarmMessage, config.StillClosedMessage, batCharString);
+      if (connectWiFi()) {
+        ePaperUpdate(0);
+        setNextAlarm();
+      }
     }
     else {
       Serial.println(F("CLOCK + CONTACT OPEN"));
