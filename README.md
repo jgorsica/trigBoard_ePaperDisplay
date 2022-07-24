@@ -20,3 +20,8 @@ Optional Hardware Modification to delay button release long enough to force disp
 Replace 10K pulldown resistor on low side of "Wake Button" with 470K pulldown resistor.\
 Add 1.0 uF capacitor between low side of "Wake Button" and ground.\
 Note: "low side" of "Wake Button" is the side not connected 4V2 power supply.
+
+Finished project:
+
+![PXL_20220628_010002174](https://user-images.githubusercontent.com/10436684/180631119-84d68cb6-d98c-49a1-be54-8bf34827dae8.jpg)
+![PXL_20220626_225345347_2](https://user-images.githubusercontent.com/10436684/180631120-e3fc6c4b-a969-4f8a-866d-fbc64d0d116e.jpg)
