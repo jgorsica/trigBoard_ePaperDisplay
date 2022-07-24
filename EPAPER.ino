@@ -202,7 +202,7 @@ bool getQuote(String &quote, String &person, WiFiClientSecure *client){
   if (client->connect("motivational-quotes1.p.rapidapi.com", 443)) {
     Serial.println("connected to server...");
     
-    String http = String("POST /motivation HTTP/1.1\r\nContent-Type: application/json\r\nX-Rapidapi-Host: motivational-quotes1.p.rapidapi.com\r\nX-Rapidapi-Key: ")+rapidApiKey+String("\r\nHost: motivational-quotes1.p.rapidapi.com\r\n\r\n");
+    String http = String("POST /motivation HTTP/1.1\r\nContent-Type: application/json\r\nX-Rapidapi-Host: motivational-quotes1.p.rapidapi.com\r\nX-Rapidapi-Key: ")+rapidApiKey+String("\r\nHost: motivational-quotes1.p.rapidapi.com\r\nContent-Length: 50\r\n\r\n{\r\n    \"quote\": \"value\",\r\n    \"person\": \"value\"\r\n}\r\n\r\n");
     client->print(http);
     Serial.println("requesting...");
     //let's wait for something to come back... only a few seconds
