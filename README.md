@@ -1,5 +1,5 @@
 Based on trigBoard v8 ESP32 development board design:\
-https://www.tindie.com/products/kdcircuits/trigboard-ultra-low-power-esp32-iot-platform/\
+https://www.tindie.com/products/kdcircuits/trigboard-ultra-low-power-esp32-iot-platform/ \
 https://trigboard-docs.readthedocs.io/en/latest/
 
 Uses WaveShare ePaper Display with WaveShare ePaper Display HAT:\
